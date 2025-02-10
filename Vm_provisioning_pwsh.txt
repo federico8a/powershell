@@ -1,0 +1,100 @@
+#Script for VM creation by federico
+#INSTRUCTIONS HERE FOR MY CONVENIENCE
+#Create a PowerShell script that automates the creation of HyperV VMs.
+#
+#Your script should do the following:
+#
+#Prompt the user for a VM name or naming convention.
+#[2 points] 
+#Prompt the user to create 1 or multiple VMs
+#[2 points]
+#Allow the user to select a vSwitch during the VM creation. You can either show the users a list of switches to choose from or require them to input the correct name (which they know beforehand).
+#[3 points]
+#Prompt the user for the amount of RAM to allocate to the VM
+#[2 points]
+#Prompt the user for the size of the virtual hard drive
+#[2 points]
+#Standardizes all VM's as generation 2 VMs
+#[2 points]
+#Prompt the user for an OS to install (at least two OS choices). For example, if the user selects Windows 10, the script will automatically mount the Windows 10 ISO.
+#[3 points]
+#Give the user the option to start the VM at script completion and boot right into the installation of Windows.
+#[2 points]
+
+$WINSERVER = "C:\Users\administrator.FEDERICOO\Downloads\20348.1.210507-1500.fe_release_amd64fre_SERVER_LOF_PACKAGES_OEM.iso"
+$win11 = "C:\Users\administrator.FEDERICOO\Downloads\19045.2006.220908-0225.22h2_release_svc_refresh_CLIENTENTERPRISEEVAL_OEMRET_x64FRE_en-us.iso"
+DO {
+  write-host "HYPER V VM CREATION FOLLOW INSTRUCTIONS OR TYPE Q TO QUIT"
+   
+$vmName = Read-Host "Enter a VM name or naming convention"
+if ($vmName -eq "q") {break}
+else {}
+
+# Prompt the user to create 1 or multiple VMs
+$vmCount = Read-Host "Enter the number of VMs to create"
+for ($NUMBEROFVMS = 1; $NUMBEROFVMS -le $vmCount; $NUMBEROFVMS++) {
+    $vmNameWithNumber = "$vmName$NUMBEROFVMS"
+$VMrAM = READ-host "enter the number of ram for $vmnamewithnumber"
+$vmgeneration = "2"
+$vmvhdsize = read-host "enter number of vhd size for $vmnamewithnumber"
+$switchchoice = "0"
+
+
+
+#####splat
+
+    
+    $VM = @{
+        Name                = $vmNameWithNumber
+        MemoryStartupBytes  = $VMRAM
+        Generation          = $vmgeneration
+        NewVHDPath          = "E:\HyperV\$vmnamewithnumber\Virtual Hard Disks\$vmNamewithnumber.vhdx"
+        NewVHDSizeBytes     = $vmvhdsize
+        Path                = "E:\HyperV\$vmNamewithnumber\Virtual Machines\"
+        SwitchName          = (Get-VMSwitch)[$switchChoice].Name
+    
+    }
+    
+    
+    
+    
+    
+    New-VM @VM -Verbose
+    $VmnameWithNumber
+    $OSCHOICE = Read-Host "select OS. pRESS 1 FOR WIN SERVER 2022. PRESS 2 FOR WIN 11 for $vmNamewithNumber"
+                if($OSCHOICE -eq "1") {$OSCHOICE = $WINSERVER}
+
+                elseif ($OSCHOICE -eq "2"){$OSCHOICE = $win11}
+                        <# Action when all if and elseif conditions are false #>
+
+
+
+
+
+
+# Add DVD Drive to Virtual Machine and Mount the ISO on the VM
+
+                Add-VMDvdDrive -VMName $vmNamewithNumber -Path $oschoice -verbose
+
+# Get the drive letter on the VM
+$DVDDrive = Get-VMDvdDrive -VMName $vmNamewithNumber -verbose
+
+# Configure DVD ISO 
+                Set-VMFirmware -VMName $vmNamewithNumber -FirstBootDevice $DVDDrive -verbose
+###################################################################33
+$VMSTART = Read-Host "Do you want to start the VM $vmnamewithNumber? Y[yes] or N[no]"
+if($VMSTART -eq "y"){
+start-vm $vmNamewithNumber -Verbose}
+else {}
+
+
+    
+    Write-Host "Created VM: $vmNameWithNumber"
+    Write-Host "VM creation completed."
+
+
+
+
+}
+}
+until ($vmName -eq "q"){Script terminated}

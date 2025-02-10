@@ -1,0 +1,249 @@
+#Federico Ochoa, NBCC student, Network administration JR. cohort 2
+# Microsoft 2 administering windows server 1231-1995 course 0SSE1095A
+#THURSDAY 16 , March, 2023
+#Basic script without contemplating mispelling, error checking, etc.
+#
+#Main menu with 5 submenus, each menu has their respective options
+# OPTION 1 CREATE ACTIVE DIRECTORY USER
+#OPTION 2 CREATE ACTIVE DIRECTORY GROUP
+#OPTION 3 ADD USER TO AN EXISTING GROUP
+#OPTION 4 REMOVE AD USER FROM AN EXISTING GROUP
+#OPTION 5 QUITS THE MAIN MENU AND EXIT THE LOOP
+#AFTER THE TASK IS COMPLETED IN THE SUBMENU, IT WILL RETURN TO THE MAIN MENU
+#
+#The script it is interactive to be guided step by step
+#
+
+
+Do {                                                    #Main menu start
+    
+    FUNCTION mymenu {write-host 'Active directory Users and Group management menu'}      #Menu contained inside a function
+        mymenu
+    $userInput = Read-Host "Please make a selection. Type '1' to create AD user, '2' to create AD group, '3'for Add user to an AD group, '4' Remove users from an AD Group or 'Q' for exit" #Takes the input that the user's type when prompted with the message
+    switch ($userInput)                                                         #Loop based on the input of the user
+    {
+    '1' {                                                                       #OPTION 11
+        Function myMenuUser {                                                   #Menu contained inside a function
+        clear-host; write-host 'Welcome to AD User creation menu'}
+        myMenuUser
+        
+        $UserFullName       =           Read-Host "Enter user's full name please"               #Contain the user's input inside $userfullname variable
+        $UserFirstName      =           Read-Host "Enter user's first name"                     #Contain the user's input inside the $userfirstname variable
+        $UserLastName       =           Read-Host "Enter user's last name"                      #Contain the user's last name inside the $userlastname variable
+        $UserUPN            =           Read-Host "Enter user's UPN.[Default in foch@local]"                            #Contains the user's UPN inside $userUPN variable         
+        do {
+            $userpasswd = Read-Host "Enter $userfullname user password.[requirements] At least 8 characters long, with complexity required(uppercase,lowercase, and special characters)."
+            if (-not $userpasswd -or $userpasswd.Length -lt 8) 
+            {                                                                                   #Loop to enter a passwd at least 8 characters long.
+                                                                                                #It doesn't check complexity
+                Write-Error "Invalid input value. Please enter a value that is at least 8 characters long, with the complexity required"}
+        } while (-not $userpasswd -or $userpasswd.Length -lt 8)                                #exit the loop when $userpasswd is greater than 8 characters and stores the value for later
+         clear-host
+          #Contains the user's password inside $userpasswd variable
+        $securestring       =           convertto-securestring $userpasswd -asplaintext -force              #password converted to secure string
+        $UserSAM            =           Read-Host "Enter user's SAM"                                        #Contains the user's SAM inside the variable
+        $userhomedefault    = "docshare"
+
+        $userserverhome     = "\\server1-FIO\"
+        $homeusername       = "\$userfullname\"
+
+        $UserHomeinput      =           Read-Host "Enter user's home folder. Type 1 for default docshare, or type custom home folder location. $Userfullname it will be assigned"
+                                     if ($userhomeinput -eq '1'){$userhome = $userhomedefault }          #homefolder default if press 1
+                                     else {
+                                     $userhome = ($UserHomeinput)                       #takes input of custom folder
+                                                                                        #in this case I assume my domain, only need the folder to be typed
+                                    
+                                 }                                       #homefolder must be typed correctly, no checked for mispelling
+                            
+
+         $Changepasswd       =           Read-host "$userfullname must change password at next logon?Press 'Y' for yes, 'N' for No."                 #PASSWD CHANGE AT NEXT LOGON REQUIRES A BOOLEAN VALUE
+                                     if ($changepasswd -eq 'y'){[bool]$pwdchangenextLogon = $true; write-host 'USER MUST CHANGE PASSWORD AT NEXT LOGON'} #BOOLEAN VALUE DECLARED FOR VARIABLE
+                                     elseif ($changepasswd -eq 'n'){[bool]$pwdchangenextLogon = $false; write-host "USER DOESN'T CHANGE PASSWD AT NEXT LOGON"}
+                                     else {Write-error 'Error. Default conditions applied'                                       #DEFAULT CONDITION IF NONE OF THE OPTIONS ARE TYPED
+                                             [bool]$pwdchangenextLogon = $true }
+         $userstatus         =           Read-host "Set user status for $userfullname. Press 'Y' for enabled or 'N' for disabled"
+                                     if ($userstatus -eq 'y'){ [bool]$userenabled = $true; write-host "$userfullname status is enabled"} #BOOLEAN VALUE DECLARED FOR VARIABLE
+                                     elseif ($userstatus -eq 'n'){[bool]$userenabled = $false; write-host "$userfullname status is disabled"}
+                                     else {Write-error 'Error. Default conditions applied'                                       #DEFAULT CONDITION IF NONE OF THE OPTIONS ARE TYPED
+                                                                                          [bool]$userenabled = $false }   
+
+
+         $path = "ou=UsersManaged,dc=foch,dc=local"                                                         #Default path
+         $pathuser          =          Read-Host "Select path for $userfullname user, by default is created in UsersManaged OU. Press 'D' for default, or 'L' for list the OUs available"
+                                    if ($pathuser -eq 'D') {
+                                                     $pathuser = $path                              #Press D, and  the path is in usersmanaged ou
+                                                    }
+                                    elseif ($pathuser -eq 'L'){                                            #Press L, new OU selected
+                                            $ou = Get-ADOrganizationalUnit -filter * |Select-Object -ExpandProperty distinguishedname
+                                            $listofOU = $ou.split(',') | where-object {$_ -like 'OU=*'} | select-object -Unique     #Command to show the OUs
+                                            clear-host; write-host $listofOU
+                                            $pathuser = Read-host "Select the following OUs available" 
+                                            $pathuser = "Ou=$pathuser,dc=foch,dc=local"                             #custom ou with value of pathuser input
+                                                 }
+                                    else {                                                                 #Return default path if the user doesn't put one of the options
+                                                     Clear-Host; Write-Error "Error. Default conditions applied"
+                                                     $pathuser = $path
+                                                     
+                                                 } 
+                                                 
+            
+            
+            
+       #Splatting > parameters and their respective values, this variables are populated with the upper input
+        
+            $aduserprovided       = @{
+            name                  = $userfullname
+            givenname             = $userfirstname
+            surname               = $userlastname
+            Userprincipalname     = "$userupn@foch.local"
+            Accountpassword       = $securestring
+            SamAccountName        = $userSAM
+            homedirectory         = ($userserverhome + $userhome + $homeusername )
+            ChangePasswordAtLogon = [bool]$changenextLogon
+            Enabled               = [bool]$userenabled
+            path                  = $pathuser
+            
+
+
+        }
+        Clear-host
+        New-ADUser @aduserprovided -Verbose                         #Command to create ad user with all of the variables 
+        
+        Write-host "===$UserFullname==== AD user succesfully created."          #Messg prompted to the terminal
+    }
+    '2' {                                                                   #OPTION 2
+        Function myMenuGroup {
+        clear-host; write-host 'Welcome to AD User creation menu'}              #SUBMENU OF OPTION 2
+        myMenuGroup
+            $groupName          =       read-host "Enter group's name please"                               #
+            $groupDescription   =       read-host "Enter group's description"                                       #VARIABLES POPULATED WITH USER INPUT
+            $groupScope         =       read-host "Enter one of the following options, G for global, D for domain local, U for universal" #
+                                if($groupScope -eq 'G'){$groupScope = "Global"; 
+                                        clear-host; WRITE-HOST "Global group scope selected"}
+                                elseif($groupScope -eq 'D'){$groupScope = "DomainLocal";                    ##SELECT GROUP SCOPE SECTION##
+                                clear-host; WRITE-HOST "DLG scope selected"}
+                                elseif($groupScope -eq 'U'){$groupScope = "Universal"                       #IF INPUT= G = GLOBAL
+                                clear-host; WRITE-HOST "Universal group scope selected"}                    #INPUT = D = DOMAINLOCAL
+                                else {write-host "Not valid selection. Default conditions applied"          #INPUT = U = UNIVERSAL
+                                       $groupscope = "Global" }
+           
+           
+           
+            $groupCategory      =       read-host "Group category,Press D for distribution or S for security"
+                                 if($groupCategory -eq 'D'){$groupCategory = "Distribution"; 
+                                clear-host; WRITE-HOST "Group category selected is 'Distribution'"}             ##SELECT GROUP CATEGORY SECTION ##
+                                elseif($groupCategory -eq 'S'){$groupCategory = "Security";                         #INPUT = D = DISTRIBUTION
+                                clear-host; WRITE-HOST "Group category selected is 'Security'"}                     #INPUT = S = SECURITY
+                                
+                                else {write-host "Not valid selection. Default conditions applied"
+                                    $groupCategory = "Security" }
+           
+           
+           
+            $pathgroupDefault   = "ou=usersManaged"   
+            $pathdomain         =  ",dc=foch,dc=local"                                           #DEFAULT PATH DECLARED
+            $pathgroup          =          Read-Host "Select path for asddas group, by default is created in UsersManaged OU. Press 'D' for default, or 'L' for list the OUs available"
+                                if ($pathgroup -eq 'D') {
+                                                     $pathgroup = $pathgroupdefault
+                                                    write-host "Default path selected"                      #IF INPUT = D= DEFAULT PATH
+                                                    }
+                                elseif ($pathgroup -eq 'L'){
+                                            $ou = Get-ADOrganizationalUnit -filter * |Select-Object -ExpandProperty distinguishedname
+                                            $listofOU = $ou.split(',') | where-object {$_ -like 'OU=*'} | select-object -Unique                 ##LIST OF OUs TO BE SELECTED##
+                                            clear-host; write-host $listofOU
+                                            $pathgroup = Read-host "Select the following OUs available"                     #TAKES INPUT FROM USER TO REPLACE AS NEW PATH, !no error checking for mispelling
+                                           $pathgroup = "ou=
+                                           $pathgroup"
+                                            Clear-Host
+                                            write-host $pathgroup selected
+                                            "OU stands for Organization Unit, and DC stands for the domain comprehended"
+                                            
+                                                 }
+                                else {
+                                                     Clear-Host; write-host "Error. Default conditions applied"         #DEFAULT PATH APPLIED IF NONE OF THE CONDITIONS ARE ENTER
+                                                     $pathgroup = "ou=usersManaged,dc=foch,dc=local" 
+
+                                                    4
+                                                     
+                                                 }
+            #Splatting
+                $adgroupprovided        = @{
+                name                    = $groupname
+                description             = $groupDescription
+                groupScope              = $groupScope
+                groupCategory           = $groupCategory
+                path                    = ($pathgroup + $pathdomain
+                )
+            }
+            New-ADGroup @adgroupprovided -verbose                                                               #COMMAND THAT EXECUTES THE CREATION OF THE AD GROUP
+            write-host "======$GROUPNAME succesfully created======="                                        #mssg
+    
+    
+    }
+    '3'{                                                                            #OPTION 3
+        Function myMenuGroupUser {                                                          #SUBMENU OF OPTION 3
+        clear-host                                                                  
+        write-host 'Welcome to add AD User to an existing group menu'}
+        myMenuGroupUser
+        $listadgroup         = Get-ADgroup -filter * | select -ExpandProperty name                     #COMMAND TO LIST ALL THE GROUPS
+        
+    
+        write-host $listadgroup
+
+    $groupselection         = read-host "Type one of the following groups"              #$groupselected now contains the value
+    $groupselected          = $groupselection
+
+    write-host "your selection is $groupselected"                                           #PROMPT TO TERMINAL SELECTED GROUP
+    
+   
+    
+    
+    $member                 = Read-host "Choose member name,[requirements] must be an existing user and provide one of the following: Distinguished name
+    GUID (objectGUID)
+    Security identifier (objectSid)
+    SAM account name (sAMAccountName).
+    Press 1 to provide directly one of the requirements before mentioned to select the memmber or any other key to show the list of users"
+                                if($member -eq '1'
+                                  ){$member = read-host "Type the user"                         # TYPE 1, TO BE ABLE TO TYPE THE USER IF YOU ALREADY KNOW IT
+                                    write-host "$member was typed"}
+                                else {get-aduser -filter * | select -ExpandProperty samaccountname
+                                $member = read-host "Choose one of the following"                       #LIST ALL OF THE USERS
+                                write-host "$member was selected"
+     }
+    Add-ADGroupMember -Identity $groupselected -Members $member -verbose
+    Write-host "=======$member added to $groupselected========="
+
+            }
+    '4' {                                                                                       #OPTION 4
+         Function myMenuRemoveUserGroup {                                                       #SUBMENU OF OPTION 4
+        clear-host; write-host 'Welcome to AD USER remove from GROUP menu'}
+        myMenuRemoveUserGroup
+      
+        $groupremove             =          Read-host "Choose a group, press 1 if you already know the name, type any other key to display available groups"
+                                if($groupremove -eq '1'){$groupremove = read-host "Type the group"
+                                 Clear-Host                                                                 #PRESS 1 TO BE ABLE TO TYPE THE GROUP IF YOU ALREADY KNOW
+                                write-host "$groupremove typed and selected"}
+                                else {Get-ADgroup -filter * | select -ExpandProperty name                       #COMMAND LIST ALL THE GROUPS
+        $groupremove              =          read-host "Choose one group to delete users from"
+        
+     }
+     clear-host
+
+     write-host "========LIST OF MEMBERS OF $Groupremove==========="                                    #MSSG WITH THE RESULT
+     
+    
+     get-adgroupmember $groupremove | Select-Object -expandproperty samaccountname
+   $USERremove                  =               Read-Host "Type one of the users listed OR If not possible due the selected group doesn't have members, press 'Q' to quit"
+                                if($userremove -eq 'Q'){clear-host; break}                       #Break loop, back to main menu
+                                else{write-host $userremove selected}                            #Taking input to put into the command
+                                remove-adgroupmember -identity $groupremove -members $Userremove -verbose #COMMAND WITH THE INPUT INFORMATION
+                                Write-host "$userremove removed from $groupremove group"
+        
+        
+       
+        }
+    'Q' {Clear-Host; write-host 'Scrip terminated.'; return}                    #mssg if q is pressed, return command exit the loop
+    }
+    }
+    Until ($userInput -eq  Q ) #Quit main menu when Q key is pressed.
+    
