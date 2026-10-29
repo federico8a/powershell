@@ -29,14 +29,20 @@ exit /b %ERRORLEVEL%
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\02-Provision-Targets.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Apply
 exit /b %ERRORLEVEL%
 :SCAN
-set "SPMT_USER_MAPPING_ARGS="
-if defined SPMT_USER_MAPPING set "SPMT_USER_MAPPING_ARGS=-UserMappingFile "%SPMT_USER_MAPPING%""
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan %SPMT_USER_MAPPING_ARGS%
+if defined SPMT_USER_MAPPING (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan -UserMappingFile "%SPMT_USER_MAPPING%"
+) else (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan
+)
 exit /b %ERRORLEVEL%
 :INITIAL
 set "SPMT_USER_MAPPING_ARGS="
 if defined SPMT_USER_MAPPING set "SPMT_USER_MAPPING_ARGS=-UserMappingFile ^"%SPMT_USER_MAPPING%^""
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial %SPMT_USER_MAPPING_ARGS%
+if defined SPMT_USER_MAPPING (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial -UserMappingFile "%SPMT_USER_MAPPING%"
+) else (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial
+)
 exit /b %ERRORLEVEL%
 :STATUS
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Status
