@@ -42,6 +42,6 @@
 - SPMT cannot perform structure-only site migration or set an arbitrary modern target template.
 - Master pages, InfoPath and custom New/Edit/View forms are not migrated.
 - Microsoft says custom SharePoint group mapping is limited; test default and custom groups thoroughly.
-- Workflow history is not included in supported workflow-to-Power Automate conversion.
+- Workflow history is not included in supported workflow-to-Power Automate conversion. Conversion needs Power Platform Administrator, Environment Maker access, designated flow owner, activation and end-to-end tests.
 - Legacy classic publishing and user-created classic page roadmap requires early modernization planning.
 - Former SMAT scanner retired on **2026-10-01**; use **SPMT scan**. See docs/sources.md.
