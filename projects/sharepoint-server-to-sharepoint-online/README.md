@@ -27,9 +27,12 @@ Microsoft documents SPMT source support for SharePoint Server **2010, 2013, 2016
 - scripts/01-Inventory-OnPrem.ps1 — farm-side site/web/list/feature inventory (read-only)
 - scripts/02-Provision-Targets.ps1 — dry-run by default; gated site creation
 - scripts/03-Run-SPMT.ps1 — scan, initial and delta with safety confirmation
-- scripts/04-Validate-Online.ps1 — target site/list counts and comparison flags; never claims perfect fidelity
+- scripts/04-Validate-Online.ps1 — target site/subsite/list counts and comparison flags; never claims perfect fidelity
+- scripts/05-Check-Identity-Mapping.ps1 — read-only Microsoft Graph mapping/identity/licensing sanity check
 - docs/licensing-and-prerequisites.md — CAD price snapshot, infrastructure, permissions, extra costs
 - docs/feature-matrix.md — explicit native/conditional/rebuild classification
+- docs/identity-and-governance.md — Graph identity check, mapping format and permission/compliance gate
+- config/feature-disposition.example.csv — per-feature rebuild/acceptance tracking
 - docs/cutover-runbook.md — waves, freeze, incremental sync, rollback, RACI and downtime
 - docs/acceptance-and-tests.md — sign-off criteria and evidence
 - docs/sources.md — primary Microsoft docs and dated references
@@ -46,6 +49,7 @@ Microsoft documents SPMT source support for SharePoint Server **2010, 2013, 2016
        run.cmd reset-session W1
        run.cmd provision-preview W1
        run.cmd provision-apply W1
+       run.cmd identity-check
        run.cmd initial W1
        run.cmd status W1
 
