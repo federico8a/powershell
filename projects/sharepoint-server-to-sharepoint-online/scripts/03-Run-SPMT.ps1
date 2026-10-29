@@ -26,6 +26,7 @@ if ($Mode -eq 'Status') {
 }
 if ($Mode -eq 'ResetSession') {
  if (!$existing) { Write-Host 'No registered SPMT session'; return }
+ if ($existing.Status -ne 'Finished') { throw 'Session not in Finished state; reset prohibited. Review current job status first.' }
  Write-Warning 'UNREGISTER deletes the local SPMT session and its incremental task state. Never do this in a running session or between initial and delta.'
  if ((Read-Host "Type RESET $Wave after archiving reports") -cne "RESET $Wave") { throw 'Reset rejected' }
  if (!(Test-Path $lockPath)) { throw 'No local session lock: refusing to reset a session this project may not own.' }
@@ -38,6 +39,7 @@ if ($Mode -eq 'ResetSession') {
 }
 if ($Mode -eq 'Delta') {
  if (!$existing -or !(Test-Path $lockPath)) { throw 'Missing existing migration session. Delta must reuse initial session; do NOT register a fresh migration.' }
+ if ($existing.Status -ne 'Finished') { throw 'Existing session has not reached Finished state; refusing concurrent rerun.' }
  $stored=Get-Content $lockPath -Raw | ConvertFrom-Json
  if ($stored.Wave -ne $Wave -or $stored.Mode -ne 'Initial' -or $stored.ManifestSHA256 -ne $hash) {
   throw 'Wave/session/mapping mismatch. Restore the EXACT initial manifest and active SPMT session. Review the runbook.'
