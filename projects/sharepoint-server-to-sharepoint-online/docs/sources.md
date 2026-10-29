@@ -25,3 +25,8 @@ Destination and finance
 - Microsoft 365 Canadian business pricing: https://www.microsoft.com/en-ca/microsoft-365/business/with-teams-plans-and-pricing
 
 **Versioning caveat:** Microsoft updates documentation, API authentication and SKU prices. Reconfirm all URLs, SPMT module help (Get-Help), destination policy and licensing at implementation time. Source support claims here are explicitly from publicly documented Microsoft SPMT sources, not tested against a live farm.
+
+Microsoft Graph / identity
+- Graph delegated authentication: https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.authentication/connect-mggraph?view=graph-powershell-1.0
+- Get-MgUser: https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.users/get-mguser?view=graph-powershell-1.0
+- SPMT user/group mapping: https://learn.microsoft.com/en-us/sharepointmigration/create-a-user-mapping-file-for-data-content-migration
