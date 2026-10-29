@@ -15,6 +15,7 @@ if /I "%ACTION%"=="delta" goto DELTA
 if /I "%ACTION%"=="status" goto STATUS
 if /I "%ACTION%"=="reset-session" goto RESET
 if /I "%ACTION%"=="validate" goto VALIDATE
+if /I "%ACTION%"=="identity-check" goto IDENTITY
 goto HELP
 :PRE
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\00-Preflight.ps1" -Manifest "%ROOT%config\sites.csv"
@@ -58,7 +59,13 @@ where pwsh.exe >nul 2>&1
 if errorlevel 1 (echo ERROR: pwsh 7.4+ is required for PnP validation. & exit /b 3)
 pwsh.exe -NoProfile -File "%ROOT%scripts\04-Validate-Online.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -SourceLists "%ROOT%output\source-lists.csv" -OutputPath "%ROOT%output"
 exit /b %ERRORLEVEL%
+:IDENTITY
+if not defined SPMT_USER_MAPPING (echo ERROR: Set SPMT_USER_MAPPING path to approved no-header mapping CSV. & exit /b 3)
+where pwsh.exe >nul 2>&1
+if errorlevel 1 (echo ERROR: pwsh 7.4+ required. & exit /b 3)
+pwsh.exe -NoProfile -File "%ROOT%scripts\05-Check-Identity-Mapping.ps1" -UserMappingFile "%SPMT_USER_MAPPING%" -OutputPath "%ROOT%output"
+exit /b %ERRORLEVEL%
 :HELP
-echo Usage: run.cmd preflight ^| inventory ^| provision-preview [wave] ^| provision-apply [wave] ^| scan [wave] ^| initial [wave] ^| delta [wave] ^| validate [wave] ^| status [wave] ^| reset-session [wave]
+echo Usage: run.cmd preflight ^| inventory ^| provision-preview [wave] ^| provision-apply [wave] ^| scan [wave] ^| initial [wave] ^| delta [wave] ^| validate [wave] ^| identity-check ^| status [wave] ^| reset-session [wave]
 echo Copy config\sites.example.csv to config\sites.csv and review the runbook before executing.
 exit /b 2
