@@ -38,35 +38,40 @@ Microsoft documents SPMT source support for SharePoint Server **2010, 2013, 2016
 
 1. Download latest GA **SharePoint Migration Tool** and install on an approved Windows migration host. Use **Windows PowerShell 5.1**, not pwsh 7, for SPMT cmdlets. Install SPO Management Shell as needed. PnP validation uses PowerShell 7.4+ and an Entra registered client ID.
 2. Copy config/sites.example.csv to config/sites.csv. Enter actual SOURCE and TARGET site collection URLs, valid owner UPN, per-wave classification. Never commit private real inventory or credentials. See docs/feature-matrix.md before mapping any custom site.
-3. Execute on the migration host:
+3. Execute on the migration host (for an optional approved identity mapping use `set "SPMT_USER_MAPPING=C:\secure\user-mapping.csv"` before initial):
 
        run.cmd preflight
        run.cmd scan W1
+       rem Review scan reports, archive evidence, then clear completed scan-only session:
+       run.cmd reset-session W1
        run.cmd provision-preview W1
        run.cmd provision-apply W1
        run.cmd initial W1
+       run.cmd status W1
 
 4. On the **SharePoint Server farm** (elevated SharePoint Management Shell / farm admin) run:
 
        run.cmd inventory
 
-5. During approved read-only freeze, rerun SAME source/target mapping for last incremental round:
+5. A scan-only session must be unregistered (via reset-session W1) before initial migration, after scan reports are archived; DO NOT reset between initial and delta. SPMT uses one registered session per Windows operator. To migrate another wave, archive reports and reset the completed previous wave before starting new initial tasks.
+
+6. During approved read-only freeze, rerun SAME source/target mapping for last incremental round:
 
        run.cmd delta W1
 
-6. With PnP PowerShell 7.4+, client application ID, and source inventory CSV exported to migration host:
+7. With PnP PowerShell 7.4+, client application ID, and source inventory CSV exported to migration host:
 
        set PNP_CLIENT_ID=<registered-Entra-app-client-id>
        run.cmd validate W1
 
-7. Review generated CSV, SPMT logs, business-user UAT, link remediation and sign-off. Do not decommission source until rollback window is closed.
+8. Review generated CSV, SPMT logs, business-user UAT, link remediation and sign-off. Do not decommission source until rollback window is closed.
 
 ## Safe defaults & warnings
 
 - Provisioning is **dry-run** unless provision-apply explicitly selected.
 - SPMT migration requires interactive operator confirmation and displays source/target mapping.
 - Credentials are prompted interactively; passwords, certificates and tokens are **not** stored in scripts or config.
-- SPMT session is **not forcibly replaced** (no -Force); run only one SPMT session per user/host. Clear old completed sessions deliberately with Unregister-SPMTMigration.
+- SPMT session is **not forcibly replaced** (no -Force); run only one SPMT session per user/host. Use explicit `run.cmd reset-session W1` only after a completed scan or completed wave and archiving reports; NEVER between initial and delta.
 - SPMT scan does not authorize skipping environment-specific pilot migrations.
 - Do not rename, reorganize or modify destination files between migration passes.
 - A post-cutover redirect or DNS change for custom intranet links is OPTIONAL and must be assessed separately. SharePoint Online tenant hostname and Microsoft 365 MX records normally do **not** change for this workload-only migration.
