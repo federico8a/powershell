@@ -15,7 +15,8 @@ foreach($r in $rows) {
  if ($r.Wave -notmatch '^[a-zA-Z0-9_-]+$') { throw 'Invalid wave' }
  foreach ($field in @('SourceUrl','TargetUrl')) {
   $url=$r.$field; $u=$null
-  if (!([uri]::TryCreate($url,[UriKind]::Absolute,[ref]$u)) -or $u.Scheme -ne 'https' -or $u.UserInfo) { throw "Bad URL: $url" }
+  if (!([uri]::TryCreate($url,[UriKind]::Absolute,[ref]$u)) -or $u.UserInfo -or ($field -eq 'TargetUrl' -and $u.Scheme -ne 'https') -or ($field -eq 'SourceUrl' -and $u.Scheme -notin @('http','https'))) { throw "Bad URL: $url" }
+  if ($field -eq 'SourceUrl' -and $u.Scheme -eq 'http') { Write-Warning "Unencrypted HTTP on-prem source connection: $url. Requires risk acceptance and secure private network." }
  }
  if ($r.TargetUrl -notmatch '^https://[a-z0-9-]+\.sharepoint\.com/(sites|teams)/[^/?#]+/?$') { throw "Unsupported target URL $($r.TargetUrl)" }
  if ($r.OwnerUPN -notmatch '^[^@\s]+@[^@\s]+$') { throw 'Invalid owner UPN' }
