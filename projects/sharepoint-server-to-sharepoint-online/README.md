@@ -38,7 +38,7 @@ Microsoft documents SPMT source support for SharePoint Server **2010, 2013, 2016
 
 1. Download latest GA **SharePoint Migration Tool** and install on an approved Windows migration host. Use **Windows PowerShell 5.1**, not pwsh 7, for SPMT cmdlets. Install SPO Management Shell as needed. PnP validation uses PowerShell 7.4+ and an Entra registered client ID.
 2. Copy config/sites.example.csv to config/sites.csv. Enter actual SOURCE and TARGET site collection URLs, valid owner UPN, per-wave classification. Never commit private real inventory or credentials. See docs/feature-matrix.md before mapping any custom site.
-3. Execute on the migration host (for an optional approved identity mapping use `set "SPMT_USER_MAPPING=C:\secure\user-mapping.csv"` before initial):
+3. Execute on the migration host (for an optional approved identity mapping use `set "SPMT_USER_MAPPING=C:\secure\user-mapping.csv"` before scan and initial; custom mapping disables automatic fallback):
 
        run.cmd preflight
        run.cmd scan W1
@@ -72,7 +72,7 @@ Microsoft documents SPMT source support for SharePoint Server **2010, 2013, 2016
 - SPMT migration requires interactive operator confirmation and displays source/target mapping.
 - Credentials are prompted interactively; passwords, certificates and tokens are **not** stored in scripts or config.
 - SPMT session is **not forcibly replaced** (no -Force); run only one SPMT session per user/host. Use explicit `run.cmd reset-session W1` only after a completed scan or completed wave and archiving reports; NEVER between initial and delta.
-- SPMT scan does not authorize skipping environment-specific pilot migrations.
+- SPMT scan does not authorize skipping environment-specific pilot migrations. Hidden files and all versions are enabled in sample settings; check content-security and storage impact. Global term store migration and workflow conversion need separately approved admin roles and settings.
 - Do not rename, reorganize or modify destination files between migration passes.
 - A post-cutover redirect or DNS change for custom intranet links is OPTIONAL and must be assessed separately. SharePoint Online tenant hostname and Microsoft 365 MX records normally do **not** change for this workload-only migration.
 - Migration job completion is not equivalent to validated zero data loss; unsupported types, versions, permissions, deleted data, workflow histories and complex integrations require explicit disposition.
