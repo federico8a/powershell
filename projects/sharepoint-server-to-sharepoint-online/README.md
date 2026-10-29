@@ -41,15 +41,16 @@ Microsoft documents SPMT source support for SharePoint Server **2010, 2013, 2016
 
 1. Download latest GA **SharePoint Migration Tool** and install on an approved Windows migration host. Use **Windows PowerShell 5.1**, not pwsh 7, for SPMT cmdlets. Install SPO Management Shell as needed. PnP validation uses PowerShell 7.4+ and an Entra registered client ID.
 2. Copy config/sites.example.csv to config/sites.csv. Enter actual SOURCE and TARGET site collection URLs, valid owner UPN, per-wave classification. Never commit private real inventory or credentials. See docs/feature-matrix.md before mapping any custom site.
-3. Execute on the migration host (for an optional approved identity mapping use `set "SPMT_USER_MAPPING=C:\secure\user-mapping.csv"` before scan and initial; custom mapping disables automatic fallback):
+3. Execute on the migration host (for optional identity mapping use `set "SPMT_USER_MAPPING=C:\secure\user-mapping.csv"` before scan and initial; run `run.cmd identity-check` only after setting this variable and installing Graph PowerShell):
 
        run.cmd preflight
+       run.cmd provision-preview W1
+       rem After approved target architecture / mapping, provision eligible sites:
+       run.cmd provision-apply W1
        run.cmd scan W1
        rem Review scan reports, archive evidence, then clear completed scan-only session:
        run.cmd reset-session W1
-       run.cmd provision-preview W1
-       run.cmd provision-apply W1
-       run.cmd identity-check
+       rem Optional: set SPMT_USER_MAPPING first, then run.cmd identity-check
        run.cmd initial W1
        run.cmd status W1
 
