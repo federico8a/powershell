@@ -11,7 +11,6 @@ Import-Module Microsoft.SharePoint.MigrationTool.PowerShell -ErrorAction Stop
 $rows=@(Import-Csv -LiteralPath $Manifest | Where-Object Wave -eq $Wave)
 if (!$rows) { throw "No rows in wave $Wave" }
 if (@($rows | Where-Object { $_.SourceUrl -match 'contoso' -or $_.TargetUrl -match 'contoso' }).Count -gt 0) { throw 'Example Contoso mappings cannot be executed.' }
-$root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 # The lock is created from the exact manifest used at the initial/scan operation.
 $folder=Join-Path $PSScriptRoot '..\output'
 New-Item -Path $folder -ItemType Directory -Force | Out-Null
@@ -67,6 +66,7 @@ $parameters=@{
  EnableMultiRound=$false
  MigrateFileVersionHistory=$true
  KeepAllVersions=$true
+ IncludeHiddenFiles=$true
  MigrateAllSiteFieldsAndContentTypes=$true
  PreserveUserPermissionsForSharePointSource=$true
  PreservePermissionInheritance=$true
@@ -79,6 +79,7 @@ if ($UserMappingFile) {
  $parameters['AutomaticUserMapping']=$false
 }
 # Intentionally do NOT enable the global term-store import by default (tenant admin and governance review).
+# Workflow conversion and Power Automate licensing/ownership are separately assessed; site migration is NOT proof of workflow function.
 # Review -MigrateTermGroups and Power Automate owner settings separately before calling Register-SPMTMigration.
 Register-SPMTMigration @parameters -ErrorAction Stop
 foreach($row in $rows) {
