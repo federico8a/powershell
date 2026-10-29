@@ -31,8 +31,8 @@ Recommended model: **prestage (source live) -> validate -> freeze source writes 
 1. Fill config/sites.csv (do not commit actual production inventory), get authorization and secure source backups.
 2. On farm: run.cmd inventory; scope and reconcile all site collections and webs. Save outputs to controlled location.
 3. Migration host: run.cmd preflight; run.cmd scan W1; sign off scan issues.
-4. run.cmd provision-preview W1; review templates and quotas; run.cmd provision-apply W1 only with approval. Manual/modern sites must be created through approved workflows before import.
-5. run.cmd initial W1; export logs, retry failures and re-run checks as needed, without changing target paths.
+4. After reviewing the scan-only SPMT reports, run.cmd reset-session W1 (only for completed scan). Then run.cmd provision-preview W1; review templates and quotas; run.cmd provision-apply W1 only with approval. Manual/modern sites must be created through approved workflows before import.
+5. run.cmd initial W1 (new session). Retain the same session for all delta rounds; export logs, retry failures and re-run checks as needed, without changing target paths.
 6. Enforce documented freeze on source **with actual SharePoint permissions / application behavior**; do not presume scripts here make the source read-only automatically.
 7. run.cmd delta W1; inspect SPMT reports; run.cmd validate W1; complete docs/acceptance-and-tests.md.
 8. Go/no-go; update intranet URL redirects, bookmarks, search links, apps, Teams channels and user communications. SPO hostname is not automatically identical to old intranet FQDN; no MX/Exchange change.
