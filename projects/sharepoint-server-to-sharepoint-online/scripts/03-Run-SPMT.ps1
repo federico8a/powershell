@@ -56,6 +56,7 @@ if ($existing -or (Test-Path $lockPath)) {
 $label = $Mode.ToUpperInvariant()
 Write-Host "$label wave $Wave :"
 $rows | Select-Object SourceUrl,TargetUrl | Format-Table -AutoSize
+# Keep automatic multi-round disabled; reruns are separately operator authorized using Delta mode.
 if ($Mode -eq 'Scan') { $confirm="SCAN $Wave" } else { $confirm="MIGRATE $Wave" }
 if ((Read-Host "Type $confirm to proceed") -cne $confirm) { throw 'Operator did not authorize.' }
 $sourceCredential=Get-Credential -Message 'On-premises SharePoint farm account with access to all source sites in this wave'
@@ -63,7 +64,7 @@ $sourceCredential=Get-Credential -Message 'On-premises SharePoint farm account w
 $parameters=@{
  ScanOnly=($Mode -eq 'Scan')
  StartMigrationAutomaticallyWhenNoScanIssue=$false
- EnableMultiRound=($Mode -eq 'Initial')
+ EnableMultiRound=$false
  MigrateFileVersionHistory=$true
  KeepAllVersions=$true
  MigrateAllSiteFieldsAndContentTypes=$true
