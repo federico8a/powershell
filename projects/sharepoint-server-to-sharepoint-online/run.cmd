@@ -12,6 +12,8 @@ if /I "%ACTION%"=="provision-apply" goto PRA
 if /I "%ACTION%"=="scan" goto SCAN
 if /I "%ACTION%"=="initial" goto INITIAL
 if /I "%ACTION%"=="delta" goto DELTA
+if /I "%ACTION%"=="status" goto STATUS
+if /I "%ACTION%"=="reset-session" goto RESET
 if /I "%ACTION%"=="validate" goto VALIDATE
 goto HELP
 :PRE
@@ -27,10 +29,20 @@ exit /b %ERRORLEVEL%
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\02-Provision-Targets.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Apply
 exit /b %ERRORLEVEL%
 :SCAN
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan
+set "SPMT_USER_MAPPING_ARGS="
+if defined SPMT_USER_MAPPING set "SPMT_USER_MAPPING_ARGS=-UserMappingFile "%SPMT_USER_MAPPING%""
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan %SPMT_USER_MAPPING_ARGS%
 exit /b %ERRORLEVEL%
 :INITIAL
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial
+set "SPMT_USER_MAPPING_ARGS="
+if defined SPMT_USER_MAPPING set "SPMT_USER_MAPPING_ARGS=-UserMappingFile ^"%SPMT_USER_MAPPING%^""
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial %SPMT_USER_MAPPING_ARGS%
+exit /b %ERRORLEVEL%
+:STATUS
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Status
+exit /b %ERRORLEVEL%
+:RESET
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode ResetSession
 exit /b %ERRORLEVEL%
 :DELTA
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Delta
@@ -41,6 +53,6 @@ if errorlevel 1 (echo ERROR: pwsh 7.4+ is required for PnP validation. & exit /b
 pwsh.exe -NoProfile -File "%ROOT%scripts\04-Validate-Online.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -SourceLists "%ROOT%output\source-lists.csv" -OutputPath "%ROOT%output"
 exit /b %ERRORLEVEL%
 :HELP
-echo Usage: run.cmd preflight ^| inventory ^| provision-preview [wave] ^| provision-apply [wave] ^| scan [wave] ^| initial [wave] ^| delta [wave] ^| validate [wave]
+echo Usage: run.cmd preflight ^| inventory ^| provision-preview [wave] ^| provision-apply [wave] ^| scan [wave] ^| initial [wave] ^| delta [wave] ^| validate [wave] ^| status [wave] ^| reset-session [wave]
 echo Copy config\sites.example.csv to config\sites.csv and review the runbook before executing.
 exit /b 2
