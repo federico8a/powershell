@@ -1,0 +1,3 @@
+Wave,SourceUrl,TargetUrl,Title,OwnerUPN,ProvisionMode,StorageQuotaMB,Criticality,BusinessOwner
+W1,https://sharepoint.contoso.local/sites/finance,https://contoso.sharepoint.com/sites/finance,Finance,sharepoint.admin@contoso.com,Manual,5120,High,Finance Lead
+W2,https://sharepoint.contoso.local/sites/hr,https://contoso.sharepoint.com/sites/hr,HR,sharepoint.admin@contoso.com,ClassicApproved,5120,Critical,HR Lead
