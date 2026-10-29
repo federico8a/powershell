@@ -1,0 +1,4 @@
+SourceSiteUrl,FeatureOrObject,SourceVersion,Disposition,TargetImplementation,BusinessOwner,Engineer,LicensingImpact,DataLossOrBehaviorChange,Priority,ValidationMethod,Status
+https://sharepoint.contoso.local/sites/finance,Custom WSP accounting dashboard,2016,Rebuild,SPFx and Azure Function,Finance Lead,Platform Engineer,Azure consumption,Legacy web part behavior changes,P1,UAT dashboard data and access,Open
+https://sharepoint.contoso.local/sites/hr,InfoPath onboarding form,2013,Rebuild,Power Apps canvas form,HR Lead,Power Platform Engineer,Power Apps premium if required,Legacy forms not migrated,P1,Submit test on all branches,Open
+https://sharepoint.contoso.local/sites/finance,Document Library versions,2016,NativeSPMT,SharePoint Online document library,Finance Lead,Migration Engineer,Extra SPO storage,Validate version and author metadata,P1,Version samples and source-target counts,Open
