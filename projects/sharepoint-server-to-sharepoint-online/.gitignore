@@ -1,0 +1,12 @@
+# Do not commit production inventories, secrets, logs or credential artifacts.
+config/sites.csv
+config/user-mapping.csv
+output/
+logs/
+*.log
+*.pfx
+*.key
+*.pem
+*.bak
+Thumbs.db
+.DS_Store
