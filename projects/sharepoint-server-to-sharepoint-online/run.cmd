@@ -18,41 +18,41 @@ if /I "%ACTION%"=="validate" goto VALIDATE
 if /I "%ACTION%"=="identity-check" goto IDENTITY
 goto HELP
 :PRE
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\00-Preflight.ps1" -Manifest "%ROOT%config\sites.csv"
+powershell.exe -NoProfile -File "%ROOT%scripts\00-Preflight.ps1" -Manifest "%ROOT%config\sites.csv"
 exit /b %ERRORLEVEL%
 :INV
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\01-Inventory-OnPrem.ps1" -OutputPath "%ROOT%output"
+powershell.exe -NoProfile -File "%ROOT%scripts\01-Inventory-OnPrem.ps1" -OutputPath "%ROOT%output"
 exit /b %ERRORLEVEL%
 :PRV
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\02-Provision-Targets.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%"
+powershell.exe -NoProfile -File "%ROOT%scripts\02-Provision-Targets.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%"
 exit /b %ERRORLEVEL%
 :PRA
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\02-Provision-Targets.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Apply
+powershell.exe -NoProfile -File "%ROOT%scripts\02-Provision-Targets.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Apply
 exit /b %ERRORLEVEL%
 :SCAN
 if defined SPMT_USER_MAPPING (
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan -UserMappingFile "%SPMT_USER_MAPPING%"
+  powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan -UserMappingFile "%SPMT_USER_MAPPING%"
 ) else (
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan
+  powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Scan
 )
 exit /b %ERRORLEVEL%
 :INITIAL
 set "SPMT_USER_MAPPING_ARGS="
 if defined SPMT_USER_MAPPING set "SPMT_USER_MAPPING_ARGS=-UserMappingFile ^"%SPMT_USER_MAPPING%^""
 if defined SPMT_USER_MAPPING (
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial -UserMappingFile "%SPMT_USER_MAPPING%"
+  powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial -UserMappingFile "%SPMT_USER_MAPPING%"
 ) else (
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial
+  powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Initial
 )
 exit /b %ERRORLEVEL%
 :STATUS
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Status
+powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Status
 exit /b %ERRORLEVEL%
 :RESET
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode ResetSession
+powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode ResetSession
 exit /b %ERRORLEVEL%
 :DELTA
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Delta
+powershell.exe -NoProfile -File "%ROOT%scripts\03-Run-SPMT.ps1" -Manifest "%ROOT%config\sites.csv" -Wave "%WAVE%" -Mode Delta
 exit /b %ERRORLEVEL%
 :VALIDATE
 where pwsh.exe >nul 2>&1
