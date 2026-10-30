@@ -1,0 +1,48 @@
+name: SharePoint migration toolkit CI
+
+on:
+  push:
+    paths:
+      - "projects/sharepoint-server-to-sharepoint-online/**"
+      - ".github/workflows/sharepoint-migration-ci.yml"
+  pull_request:
+    paths:
+      - "projects/sharepoint-server-to-sharepoint-online/**"
+      - ".github/workflows/sharepoint-migration-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-safety-tests:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PowerShell test tools
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Install-Module Pester -MinimumVersion 5.0 -Scope CurrentUser -Force -SkipPublisherCheck
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+      - name: PowerShell static analysis
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module PSScriptAnalyzer
+          $findings = @(Invoke-ScriptAnalyzer -Path 'projects/sharepoint-server-to-sharepoint-online/scripts' -Recurse -Severity Error)
+          $findings | Format-Table -AutoSize
+          if ($findings.Count) { throw "$($findings.Count) blocking script-analysis finding(s)." }
+      - name: Pester regressions (mocks, isolated TestDrive)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module Pester -MinimumVersion 5.0
+          $results = Invoke-Pester -Path 'projects/sharepoint-server-to-sharepoint-online/tests/SharePointMigration.Tests.ps1' -Output Detailed -PassThru
+          if ($results.FailedCount -gt 0 -or $results.PassedCount -lt 14) { throw "Pester failed: $($results.PassedCount) passed, $($results.FailedCount) failed." }
+      - name: CMD smoke test (fake Contoso manifest, no migration)
+        shell: cmd
+        run: |
+          cd /d projects\sharepoint-server-to-sharepoint-online
+          copy /Y config\sites.example.csv config\sites.csv
+          call run.cmd preflight
