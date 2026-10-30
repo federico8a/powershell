@@ -21,12 +21,16 @@ try { $existing=Get-SPMTMigration -ErrorAction Stop } catch { $existing=$null }
 if ($Mode -eq 'Status') {
  if (!$existing) { Write-Host 'No SPMT session found for this Windows identity.'; return }
  Write-Host 'SPMT migration session exists. Review status in SPMT UI/Get-SPMTMigration and task logs.'
+ $existing | Select-Object Status,Tasks | Format-List
  if (Test-Path $lockPath) { Get-Content $lockPath }
  return
 }
 if ($Mode -eq 'ResetSession') {
  if (!$existing) { Write-Host 'No registered SPMT session'; return }
- if ($existing.Status -ne 'Finished') { throw 'Session not in Finished state; reset prohibited. Review current job status first.' }
+ $statusProperty=$existing.PSObject.Properties['Status']
+ if (!$statusProperty) { throw 'Cannot verify session completion: no Status property. Inspect Get-SPMTMigration / Show-SPMTMigration and SPMT reports manually; no automated reset.' }
+ $status=[string]$existing.Status
+ if ($status -notin @('Finished','Completed')) { throw "Session status '$status' not verified as completed; reset prohibited. Inspect task status and logs." }
  Write-Warning 'UNREGISTER deletes the local SPMT session and its incremental task state. Never do this in a running session or between initial and delta.'
  if ((Read-Host "Type RESET $Wave after archiving reports") -cne "RESET $Wave") { throw 'Reset rejected' }
  if (!(Test-Path $lockPath)) { throw 'No local session lock: refusing to reset a session this project may not own.' }
@@ -39,7 +43,10 @@ if ($Mode -eq 'ResetSession') {
 }
 if ($Mode -eq 'Delta') {
  if (!$existing -or !(Test-Path $lockPath)) { throw 'Missing existing migration session. Delta must reuse initial session; do NOT register a fresh migration.' }
- if ($existing.Status -ne 'Finished') { throw 'Existing session has not reached Finished state; refusing concurrent rerun.' }
+ $statusProperty=$existing.PSObject.Properties['Status']
+ if (!$statusProperty) { throw 'Cannot verify SPMT session state. Refuse delta without a recognized completed status; inspect SPMT tool version.' }
+ $status=[string]$existing.Status
+ if ($status -notin @('Finished','Completed')) { throw "Session status '$status' is not a recognized completed state; refusing concurrent delta." }
  $stored=Get-Content $lockPath -Raw | ConvertFrom-Json
  if ($stored.Wave -ne $Wave -or $stored.Mode -ne 'Initial' -or $stored.ManifestSHA256 -ne $hash) {
   throw 'Wave/session/mapping mismatch. Restore the EXACT initial manifest and active SPMT session. Review the runbook.'
@@ -74,13 +81,14 @@ $parameters=@{
  PreservePermissionInheritance=$true
  MigrateSiteSettings='PRESERVE_ALL_SETTINGS'
  MigrateNavigation=$true
+ MigrateTermGroups=$false
 }
 if ($UserMappingFile) {
  if (!(Test-Path -LiteralPath $UserMappingFile)) { throw 'Mapping file not found' }
  $parameters['UserMappingFile']=(Resolve-Path -LiteralPath $UserMappingFile).Path
  $parameters['AutomaticUserMapping']=$false
 }
-# Intentionally do NOT enable the global term-store import by default (tenant admin and governance review).
+# MigrateTermGroups is explicitly false because Microsoft documents its SPMT default as ON; taxonomy migration must be separately approved, enabled and tested by governance owner.
 # Workflow conversion and Power Automate licensing/ownership are separately assessed; site migration is NOT proof of workflow function.
 # Review -MigrateTermGroups and Power Automate owner settings separately before calling Register-SPMTMigration.
 Register-SPMTMigration @parameters -ErrorAction Stop
