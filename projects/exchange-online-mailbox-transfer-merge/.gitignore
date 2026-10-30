@@ -1,0 +1,8 @@
+*.pst
+*.ost
+*.zip
+*mapping*.csv
+exports/
+logs/
+*.secret
+.env
