@@ -8,7 +8,7 @@
 | Libraries, documents, folders, list items, attachments | SPMT | Count, bytes, attachments, permissions, links and samples; investigate failed and skipped objects. |
 | Versions, created/modified authors/dates | SPMT conditional | Configure all versions, validate author mapping and sample version trees. Retention/versions can expand costs. |
 | Site columns/content types | SPMT conditional | Enable all site fields/content types; check lookup/reference behavior and hidden fields. |
-| Managed metadata, term store | SPMT conditional | Turn on migration term groups; possible Global Admin role requirement for global taxonomy. |
+| Managed metadata, term store | SPMT conditional | Term-group migration is explicitly off in automation (Microsoft SPMT defaults ON), and requires separate taxonomy-owner/admin approval, tenant privileges and validation before enabling. |
 | Standard site navigation/logo/title/features | SPMT supported settings | Preserve all settings, verify names, URLs, features and links. |
 | Standard SharePoint web parts and pages | SPMT supported subset | Inventory page layouts and web part types; classic-modern conversion is separately planned. |
 | SharePoint unique permissions and inheritance | SPMT conditional | Preserve permissions; build user identity mapping before bulk; test item-level access. |
