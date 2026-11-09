@@ -1,0 +1,19 @@
+{
+  ".github/workflows/checks.yml": "1a6b93be0841dd7dff08ccc8597e85cf50520ab4abf6bda491d52d56db9c94fe",
+  ".gitignore": "44fe4ecceb9348419ee3452ca66fd0b89b56109dfe274ffb3771107bbc72059b",
+  "Invoke-SharePointRecovery.ps1": "a2a1ab97534ff9ccd0cdf0f753039d39f81be6fe27da02c80cca8c3e8a0e7b75",
+  "LICENSE": "4a4460441b7e2e277c7da45485e3057784afbf137c17c6e20909f8358b1062bf",
+  "README.md": "9fb7ab9513368f687bf2f6e5d699dd332efc715150b55cbbc75e50f8fc588738",
+  "VALIDATION-STATUS.md": "cff6de5ceb00c65462093ad1261e6f5a6dccad81c4cab721605ab2e0b75b3906",
+  "docs/INCIDENT-RUNBOOK.md": "3b4eda56b95b4d207125900ff43eaa5ff3b0083e44306c7f027e99b8301b2e1a",
+  "docs/TEST-RESULTS.md": "74121379dc44e5d90685cbc75430b2bbf56d7062541cb56daa8dd214e8806e1a",
+  "docs/VALIDATION-GATES.md": "cab18bd7ac91bc0ece107f779472f46c9157230d896592efc102a9165ea4c130",
+  "docs/evidence/2026-11-03-recovery-test.log": "8f87fee9bcf6079ea7c1f07e7d0175a6970038c5d418615c5371c04445ecc5ca",
+  "docs/evidence/2026-11-05-parser.log": "d4acdaed62865f884a9b37e388fd7347208651d794a64ec9366bd0d7614479f3",
+  "docs/evidence/2026-11-05-pester.log": "eeed07a3d87a24ccf6aeb91f5bf94fba901a139541f5c698b73e31299fe8b93d",
+  "docs/evidence/2026-11-05-secret-scan.json": "20d336a82d5a55dd86fcace7af1d98524baa20b0fd7d13f9a0ccd7ab2cb0b573",
+  "src/Recovery.Common.psm1": "32dbc9a92bcc586d069a3d4c07a515a7dbf1302d58bfb71bb5a443ddbc020e66",
+  "src/Restore-Worker.ps1": "19bf31c01f3ba0a6bea68682977aba8b116a370b8413fd86816a979fc92e2c7a",
+  "tests/Recovery.Common.Tests.ps1": "c75093a3735e7bcf0941e93d6cf158a588ffa48285c4a39442ffc4f242dc06c8",
+  "tests/StaticContract.Tests.ps1": "421fc52e4ae87d9e6a5c70a530d92dff57db0d901f1d9079ebc7da5883cf5880"
+}

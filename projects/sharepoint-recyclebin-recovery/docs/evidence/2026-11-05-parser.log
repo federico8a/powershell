@@ -1,0 +1,3 @@
+PowerShell 7.4.13 on Linux
+Parsed all 5 .ps1/.psm1 files with System.Management.Automation.Language.Parser.ParseFile.
+Result: 5 parsed; 0 parser errors.

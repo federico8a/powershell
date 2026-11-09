@@ -1,0 +1,43 @@
+Pester v5.7.1
+
+Starting discovery in 2 files.
+Discovery found 22 tests in 173ms.
+Running tests.
+
+Running tests from '/workspace/scratch/44ef0e1ddb2e/prepared/sharepoint-recyclebin-recovery/tests/Recovery.Common.Tests.ps1'
+Describing URL parsing
+  [+] infers site collection and scopes a document library 111ms (83ms|28ms)
+  [+] recognizes an exact file 40ms (39ms|1ms)
+  [+] rejects non-SharePoint host 29ms (28ms|1ms)
+  [+] honors a view id query parameter 10ms (9ms|1ms)
+
+Describing filter and boundaries
+  [+] does not accidentally include sibling prefix folder 14ms (12ms|1ms)
+  [+] matches email without case sensitivity 7ms (6ms|1ms)
+  [+] filters date window UTC and enumerates only files and folders 43ms (42ms|1ms)
+
+Describing safety, resume validation and exports
+  [+] rejects a tampered manifest whose item path is outside its scope 30ms (26ms|4ms)
+  [+] rejects a duplicate recycle-bin identity 7ms (6ms|1ms)
+  [+] accepts a valid empty manifest 4ms (3ms|1ms)
+  [+] rejects an external query id scope 5ms (4ms|1ms)
+  [+] rejects slashes in leaf names from untrusted bin metadata 5ms (4ms|1ms)
+  [+] exports a zero-row CSV and can load the JSON manifest again 55ms (54ms|1ms)
+  [+] neutralizes CSV formula injection in a filename 11ms (10ms|1ms)
+
+Describing throttle error classification
+  [+] recognizes 429 from wrapped PnP error message 17ms (16ms|1ms)
+  [+] recognizes 503 from wrapped PnP error message 23ms (22ms|1ms)
+  [+] does not retry a generic unauthorized error 4ms (3ms|1ms)
+  [+] does not retry a generic not-found error 3ms (3ms|1ms)
+
+Describing live identity preflight
+  [+] requires the stored and freshly read item paths, IDs, types and timestamps to match 12ms (11ms|1ms)
+
+Running tests from '/workspace/scratch/44ef0e1ddb2e/prepared/sharepoint-recyclebin-recovery/tests/StaticContract.Tests.ps1'
+Describing tooling safeguards
+  [+] defaults to inventory-only and requires explicit Apply 7ms (6ms|1ms)
+  [+] uses a bounded parallel worker throttle 4ms (3ms|1ms)
+  [+] uses per-item ID with confirmation suppressed only after approval 4ms (4ms|1ms)
+Tests completed in 926ms
+Tests Passed: 22, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0

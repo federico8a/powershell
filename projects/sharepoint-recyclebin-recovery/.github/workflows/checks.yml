@@ -1,0 +1,45 @@
+name: PowerShell syntax, Pester and PnP compatibility
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell and run deterministic Pester tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($PSVersionTable.PSVersion -lt [version]'7.4') { throw 'PowerShell 7.4+ required' }
+          $files = Get-ChildItem -Path . -Recurse -Include '*.ps1','*.psm1'
+          foreach ($f in $files) {
+            $tokens = $null; $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)
+            if ($errors) { $errors | ForEach-Object { Write-Error "${f}: $_" }; throw 'PowerShell parser errors detected' }
+          }
+          Install-Module Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck
+          Invoke-Pester ./tests -Output Detailed -CI
+      - name: Check PnP stable cmdlet and parameter compatibility (no tenant access)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Install-Module PnP.PowerShell -Scope CurrentUser -Force -AllowClobber
+          Import-Module PnP.PowerShell -ErrorAction Stop
+          $required = @{
+            'Connect-PnPOnline'        = @('Interactive','ClientId','AccessToken','ReturnConnection')
+            'Get-PnPRecycleBinItem'   = @('FirstStage','SecondStage','RowLimit','Connection')
+            'Restore-PnPRecycleBinItem' = @('Identity','Force','Connection')
+            'Get-PnPAccessToken'      = @('ResourceTypeName','Connection')
+            'Get-PnPFile'             = @('Url','AsListItem','Connection')
+            'Get-PnPFolder'           = @('Url','Connection')
+          }
+          foreach ($name in $required.Keys) {
+            $cmd = Get-Command -Name $name -ErrorAction Stop
+            foreach ($parameter in $required[$name]) {
+              if (-not $cmd.Parameters.ContainsKey($parameter)) {
+                throw "PnP compatibility break: $name no longer exposes -$parameter"
+              }
+            }
+          }
+          Write-Host 'PnP cmdlet surface checked. No SharePoint operation was performed.'

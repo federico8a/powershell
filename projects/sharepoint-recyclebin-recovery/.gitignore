@@ -1,0 +1,8 @@
+reports/
+*.pfx
+*.pem
+*.key
+*.cer
+*.env
+.env
+.DS_Store
