@@ -1,0 +1,7 @@
+logs/
+reports/
+*.credential
+*.pfx
+*.key
+__pycache__/
+config/production*
